@@ -1,6 +1,14 @@
 # system imports
 import os
 import time
+import sys
+sys.dont_write_bytecode = True
+
+import datetime
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore")
 
 # common matrix manipulation
 import numpy as np
@@ -165,7 +173,7 @@ class KITTIDataset_from_folder(Dataset):
 
 
 if __name__ == '__main__':
-    print("--- Monocular Depth estimation train code ---")
+    print("\n \n --- Monocular Depth estimation train code --- \n \n")
     
     # load dataset 
     if method_of_training == "eigen_split":
@@ -180,13 +188,16 @@ if __name__ == '__main__':
     net.to(torch.device(compute_device))
 
     if resume_trining:
+        print("\n Loading previous weights from ", pth_file_location)
         net.load_state_dict(torch.load(pth_file_location))
     
     # configure loss
-    print("training with the following loss parmeters:")
+    print("\n \nTraining with the following loss parmeters:")
     print("appearance_matching_loss_weight: ",appearance_matching_loss_weight)
     print("LR_loss_weight: ", LR_loss_weight)
     print("disparity_smoothness_loss_weight: ", disparity_smoothness_loss_weight)
+    print("alpha_appearance_matching_loss: ", alpha_appearance_matching_loss)
+    print("\n")
 
     if is_gpu_available:
         loss_function = nn.L1Loss().cuda()
@@ -194,9 +205,9 @@ if __name__ == '__main__':
         loss_function = nn.L1Loss()
 
     optimizer = optim.Adam(net.parameters(), lr = LEARNING_RATE)
-    print("Training Started")
-
-    for epoch in range(40):
+    current_datetime = datetime.datetime.now()
+    print("Training Started @ ", current_datetime.strftime("%Y-%m-%d %H:%M:%S"))
+for epoch in range(1, EPOCH+1):
         for batch_data in tqdm(TrainLoader):
             # retrieve stereo images
             left_original = batch_data["left_img"]

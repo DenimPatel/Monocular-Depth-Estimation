@@ -38,33 +38,33 @@ class DispNet_sequential(nn.Module) :
     self.conv6b = nn.Conv2d(1024,1024,3,1,padding=(1,1)) #8*4
     self.conv6b_batch = nn.BatchNorm2d(1024, affine = False)
     
-    self.upconv6b = nn.Upsample(scale_factor=2, mode='nearest') #16*8
+    # self.upconv6b = nn.Upsample(scale_factor=2, mode='nearest') #16*8
     self.conv_upcon6b = nn.Conv2d(1024,1024,3,1,padding=(1,1))
     self.conv6_final = nn.Conv2d(1024+512,512,3,1,padding=(1,1))
 
-    self.upconv5b = nn.Upsample(scale_factor=2, mode='nearest') #32*16
+    # self.upconv5b = nn.Upsample(scale_factor=2, mode='nearest') #32*16
     self.conv_upcon5b = nn.Conv2d(512,512,3,1,padding=(1,1))
     self.conv5_final = nn.Conv2d(512+512,256,3,1,padding=(1,1))
 
-    self.upconv4b = nn.Upsample(scale_factor=2, mode='nearest') #64*32
+    # self.upconv4b = nn.Upsample(scale_factor=2, mode='nearest') #64*32
     self.conv_upcon4b = nn.Conv2d(256,256,3,1,padding=(1,1))
     self.conv4_final = nn.Conv2d(256+256,128,3,1,padding=(1,1))
     self.conv4_disp = nn.Conv2d(128, 2, 3, 1,padding=(1,1))
     self.conv4_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    self.upconv3b = nn.Upsample(scale_factor=2, mode='nearest') #128*64
+    # self.upconv3b = nn.Upsample(scale_factor=2, mode='nearest') #128*64
     self.conv_upcon3b = nn.Conv2d(128, 128,3,1,padding=(1,1))
     self.conv3_final = nn.Conv2d(128+128+2,64,3,1,padding=(1,1))
     self.conv3_disp = nn.Conv2d(64, 2, 3, 1,padding=(1,1))
     self.conv3_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    self.upconv2 = nn.Upsample(scale_factor=2, mode='nearest') #256*128
+    # self.upconv2 = nn.Upsample(scale_factor=2, mode='nearest') #256*128
     self.conv_upcon2 = nn.Conv2d(64,64,3,1,padding=(1,1))
     self.conv2_final = nn.Conv2d(64+64+2,32,3,1,padding=(1,1))
     self.conv2_disp = nn.Conv2d(32, 2, 3, 1,padding=(1,1))
     self.conv2_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    self.upconv1 = nn.Upsample(scale_factor=2, mode='nearest') #512*256
+    # self.upconv1 = nn.Upsample(scale_factor=2, mode='nearest') #512*256
     self.conv_upcon1 = nn.Conv2d(32,32,3,1,padding=(1,1))
     self.conv1_final = nn.Conv2d(32+2,2,3,1,padding=(1,1))    
     
@@ -86,28 +86,28 @@ class DispNet_sequential(nn.Module) :
     x6a = F.relu(self.conv6a_batch(self.conv6a(x5b)))
     x6b = F.relu(self.conv6b_batch(self.conv6b(x6a)))
     
-    x6up = F.relu(self.conv_upcon6b(self.upconv6b(x6b)))
+    x6up = F.relu(self.conv_upcon6b(F.interpolate(x6b, scale_factor=2, mode='nearest')))
     x5_final = F.relu(self.conv6_final(torch.cat((x6up,x5b),1)))
 
-    x5up = F.relu(self.conv_upcon5b(self.upconv5b(x5_final)))
+    x5up = F.relu(self.conv_upcon5b(F.interpolate(x5_final, scale_factor=2, mode='nearest')))
     x4_final = F.relu(self.conv5_final(torch.cat((x5up,x4b),1)))
 
-    x4up = F.relu(self.conv_upcon4b(self.upconv4b(x4_final)))
+    x4up = F.relu(self.conv_upcon4b(F.interpolate(x4_final, scale_factor=2, mode='nearest')))  
     x3_final = F.relu(self.conv4_final(torch.cat((x4up,x3b),1)))
     x3_disp = F.relu(self.conv4_disp(x3_final))
     x3_dispup = self.conv4_dispup(x3_disp)
 
-    x3up = F.relu(self.conv_upcon3b(self.upconv3b(x3_final)))
+    x3up = F.relu(self.conv_upcon3b(F.interpolate(x3_final, scale_factor=2, mode='nearest')))  
     x2_final = F.relu(self.conv3_final(torch.cat((x3up,x2,x3_dispup),1)))
     x2_disp = F.relu(self.conv3_disp(x2_final))
     x2_dispup = self.conv3_dispup(x2_disp)
 
-    x2up = F.relu(self.conv_upcon2(self.upconv2(x2_final)))
+    x2up = F.relu(self.conv_upcon2(F.interpolate(x2_final, scale_factor=2, mode='nearest')))
     x1_final = F.relu(self.conv2_final(torch.cat((x2up,x1,x2_dispup),1)))
     x1_disp = F.relu(self.conv2_disp(x1_final))
     x1_dispup = self.conv2_dispup(x1_disp)
 
-    x1up = F.relu(self.conv_upcon1(self.upconv1(x1_final)))
+    x1up = F.relu(self.conv_upcon1(F.interpolate(x1_final, scale_factor=2, mode='nearest')))
     x0_disp = F.relu(self.conv1_final(torch.cat((x1up,x1_dispup),1)))
     #TO DO D = 1/(aσ + b) Output Depth will be between 0.1 and 100
     return [x0_disp, x1_disp, x2_disp, x3_disp]
