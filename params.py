@@ -1,6 +1,6 @@
-resume_trining = True
+resume_trining = False
 BATCH_SIZE = 1
-MANY_WORKERS = 0
+MANY_WORKERS = 8
 EPOCH = 50
 """
 weights for losses
@@ -25,7 +25,7 @@ else:
 """
 dataset 
 """
-dataset_location = "/Users/denimpatel/Desktop/Deep Learning/Monocular-Depth-Estimation/"
+dataset_location = "/home/denimpatel2020/Monocular-Depth-Estimation/"
 # dataset_location = "/home/baladhurgesh97/Dataset/"
 
 image_type = ".png" #or ".jpg"
@@ -33,8 +33,8 @@ sanity_check_images = False
 
 method_of_training = "folder" # "eigen_split" or "folder"
 
-pth_file_location = "/Users/denimpatel/Desktop/Deep Learning/Monocular-Depth-Estimation/epoch/wts_monodepth_.pth"
-save_images_in = "/Users/denimpatel/Desktop/Deep Learning/Monocular-Depth-Estimation/epoch/"
+pth_file_location = "/home/denimpatel2020/Monocular-Depth-Estimation/epoch/wts_monodepth_.pth"
+save_images_in = "/home/denimpatel2020/Monocular-Depth-Estimation/epoch/"
 # save_images_in = '/home/baladhurgesh97/wts_monodepth_gcp1.pth'
 
 
