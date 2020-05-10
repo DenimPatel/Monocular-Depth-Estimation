@@ -3,12 +3,11 @@ import os
 import time
 import sys
 sys.dont_write_bytecode = True
-
-import datetime
-
 if not sys.warnoptions:
     import warnings
     warnings.simplefilter("ignore")
+
+import datetime
 
 # common matrix manipulation
 import numpy as np
@@ -31,14 +30,14 @@ import torch.nn as nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 import torch.optim as optim
-
+from torch.optim.lr_scheduler import StepLR
 
 # model 
 from model import DispNet_sequential as DispNet
 
 # loss 
 from loss import reconstruct_using_disparity 
-from disparity_smoothness_loss import disparity_smoothness
+from disparity_smoothness_loss import disparity_smoothness, temporal_disparity_smoothness
 from ssim_loss import SSIM
 
 # Pyramid generation
@@ -51,7 +50,7 @@ Loads kitti dataset from the disk
 class KITTIDataset_eigen_split(Dataset):
 
     def __init__(self):
-        self.rootdir = dataset_location
+        self.rootdir = train_dataset_location
         # "/home/baladhurgesh97/Dataset/" # directory where dataset is present physically
         # /Users/denimpatel/Desktop/Deep Learning/Monocular-depth-estimation/2011_09_26
         self.extension_of_images = image_type # use ".jpg" or ".png" as per dataset
@@ -115,7 +114,7 @@ class KITTIDataset_eigen_split(Dataset):
 class KITTIDataset_from_folder(Dataset):
 
     def __init__(self):
-        self.rootdir = dataset_location
+        self.rootdir = train_dataset_location
         # "/home/baladhurgesh97/Dataset/" # directory where dataset is present physically
         # /Users/denimpatel/Desktop/Deep Learning/Monocular-depth-estimation/2011_09_26
         self.extension_of_images = image_type # use ".jpg" or ".png" as per dataset
@@ -135,6 +134,7 @@ class KITTIDataset_from_folder(Dataset):
             if "image_02/data" in subdir: #Left RGB Folder
                 for file in files:
                     if ".png" in file or ".jpg" in file:
+                        # if not ("0000.jpg" or "0000.png") in file:
                         left_file = os.path.join(subdir, file)
                         self.left_images.append(left_file)
                         self.total_left_images += 1
@@ -142,10 +142,12 @@ class KITTIDataset_from_folder(Dataset):
             if "image_03/data" in subdir: #Right RGB Folder
                 for file in files:
                     if ".png" in file or ".jpg" in file:
+                        # if not ("0000.jpg" or "0000.png") in file:
                         right_file = os.path.join(subdir, file)
                         self.right_images.append(right_file)
                         self.total_right_images += 1
-
+        self.left_images.sort()
+        self.right_images.sort()
         assert(self.total_left_images == self.total_right_images)
         print("Loading Dataset: COMPLETE! took ", time.time()-start, " seconds")
         print("Total Stereo images acquired: ", len(self.right_images))       
@@ -154,23 +156,38 @@ class KITTIDataset_from_folder(Dataset):
         return len(self.right_images)
 
     def __getitem__(self, idx):
+        # splits = self.left_images[idx].split("/")
+        # numbers = int(splits[-1][:-4])
+        # path = self.left_images[idx].split("000")
+        
         # read stereo images from disk
-        left_img = cv2.imread(self.left_images[idx])
-        right_img = cv2.imread(self.right_images[idx])
+        if idx == 0:
+            left_img = cv2.imread(self.left_images[idx])
+            prev_left_img = cv2.imread(self.left_images[idx])
+            right_img = cv2.imread(self.right_images[idx])
+            prev_right_img = cv2.imread(self.right_images[idx])
+        else:
+            left_img = cv2.imread(self.left_images[idx])
+            prev_left_img = cv2.imread(self.left_images[idx-1])
+            right_img = cv2.imread(self.right_images[idx])
+            prev_right_img = cv2.imread(self.right_images[idx-1])
 
         np.asarray(left_img)
+        np.asarray(prev_left_img)
         np.asarray(right_img)
-        
+        np.asarray(prev_right_img)
         # resize as per model requirement
         left_img = cv2.resize(left_img,(self.cols, self.rows))
+        prev_left_img = cv2.resize(prev_left_img,(self.cols, self.rows))
         right_img = cv2.resize(right_img,(self.cols, self.rows))
-
+        prev_right_img = cv2.resize(prev_right_img,(self.cols, self.rows))
         # reshape for pytorch [channels, rows, cols]
         left_img = np.moveaxis(left_img, 2,0)
+        prev_left_img = np.moveaxis(prev_left_img, 2,0)
         right_img = np.moveaxis(right_img, 2,0)
+        prev_right_img = np.moveaxis(prev_right_img, 2,0)
 
-        return {"left_img":left_img,"right_img":right_img}
-
+        return {"left_img":left_img,"right_img":right_img,"prev_left_img":prev_left_img,"prev_right_img":prev_right_img}
 
 if __name__ == '__main__':
     print("\n \n --- Monocular Depth estimation train code --- \n \n")
@@ -205,32 +222,43 @@ if __name__ == '__main__':
         loss_function = nn.L1Loss()
 
     optimizer = optim.Adam(net.parameters(), lr = LEARNING_RATE)
+    scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
     current_datetime = datetime.datetime.now()
     print("Training Started @ ", current_datetime.strftime("%Y-%m-%d %H:%M:%S"))
-for epoch in range(1, EPOCH+1):
+    for epoch in range(1, EPOCH+1):
         for batch_data in tqdm(TrainLoader):
             # retrieve stereo images
             left_original = batch_data["left_img"]
+            prev_left_original = batch_data["prev_left_img"]
             right_original = batch_data["right_img"]
+            prev_right_original = batch_data["prev_right_img"]
 
             # send to CUDA device
             if is_gpu_available: 
                 left = left_original.type(torch.FloatTensor).cuda()
+                prev_left = prev_left_original.type(torch.FloatTensor).cuda()
                 right = right_original.type(torch.FloatTensor).cuda()
+                prev_right = prev_right_original.type(torch.FloatTensor).cuda()
             else:
                 left = left_original.type(torch.FloatTensor)
+                prev_left = prev_left_original.type(torch.FloatTensor)
                 right = right_original.type(torch.FloatTensor)
+                prev_right = prev_right_original.type(torch.FloatTensor)
 
             # generate pyramid
             left_pyramid = scale_pyramid(left,4)
             right_pyramid = scale_pyramid(right,4)
-
+            prev_left_pyramid = scale_pyramid(prev_left,4)
+            prev_right_pyramid = scale_pyramid(prev_right,4)
             # forward pass with left image
             output = net.forward(left)
+            prev_output = net.forward(prev_left)
 
             # collect disparities from the model
             left_disp = [output[i][:, 0, :, :] for i in range(4)]
             right_disp = [output[i][:, 1, :, :] for i in range(4)]
+            prev_left_disp = [prev_output[i][:, 0, :, :] for i in range(4)]
+            prev_right_disp = [prev_output[i][:, 1, :, :] for i in range(4)]
 
             # reconsturct corresponding images using disparities
             right_reconstuct = [reconstruct_using_disparity(left_pyramid[i], right_disp[i]) for i in range(4)]
@@ -276,10 +304,20 @@ for epoch in range(1, EPOCH+1):
             left_disp[2] = left_disp[2].view([-1, 1, 64, 128])
             left_disp[3] = left_disp[3].view([-1, 1, 32, 64])
 
+            prev_left_disp[0] = prev_left_disp[0].view([-1, 1, 256, 512])
+            prev_left_disp[1] = prev_left_disp[1].view([-1, 1, 128, 256])
+            prev_left_disp[2] = prev_left_disp[2].view([-1, 1, 64, 128])
+            prev_left_disp[3] = prev_left_disp[3].view([-1, 1, 32, 64])
+
             right_disp[0] = right_disp[0].view([-1, 1, 256, 512])
             right_disp[1] = right_disp[1].view([-1, 1, 128, 256])
             right_disp[2] = right_disp[2].view([-1, 1, 64, 128])
             right_disp[3] = right_disp[3].view([-1, 1, 32, 64])
+
+            prev_right_disp[0] = prev_right_disp[0].view([-1, 1, 256, 512])
+            prev_right_disp[1] = prev_right_disp[1].view([-1, 1, 128, 256])
+            prev_right_disp[2] = prev_right_disp[2].view([-1, 1, 64, 128])
+            prev_right_disp[3] = prev_right_disp[3].view([-1, 1, 32, 64])
 
             """
             Calculate L-R consistency loss
@@ -301,15 +339,27 @@ for epoch in range(1, EPOCH+1):
             """
             disparity_smoothnesss_loss_left = disparity_smoothness(left_pyramid,left_disp)
             disparity_smoothness_loss_right = disparity_smoothness(right_pyramid,right_disp)
+
             disparity_smoothness_loss = sum(disparity_smoothnesss_loss_left + disparity_smoothness_loss_right)
             # print("disparity_smoothness: ", DSPsmooth_loss)
+            """
+            Temporal Disparity Smoothness loss
+            """
+
+            temporal_disparity_smoothness_loss_left = temporal_disparity_smoothness(prev_left_pyramid, left_pyramid, prev_left_disp, left_disp)
+            temporal_disparity_smoothness_loss_right = temporal_disparity_smoothness(prev_right_pyramid, right_pyramid, prev_right_disp, right_disp)
+
+            temporal_disparity_smoothness_loss = sum(temporal_disparity_smoothness_loss_left + temporal_disparity_smoothness_loss_right)
 
             loss = (appearance_matching_loss_weight * appearance_matching_loss+ \
                 LR_loss_weight * LR_loss + \
-                disparity_smoothness_loss_weight * disparity_smoothness_loss)/BATCH_SIZE           
+                disparity_smoothness_loss_weight * disparity_smoothness_loss +\
+                temporal_disparity_smoothness_loss_weight* temporal_disparity_smoothness_loss)/BATCH_SIZE  
+
             loss.backward()  
             optimizer.step()
-            net.zero_grad() 
+            net.zero_grad()
+            scheduler.step() 
 
         #TO DO: Query same image and see how it evolves over epochs
         print("Epoch : ", epoch, " Loss: ", loss)

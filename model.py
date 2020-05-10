@@ -71,44 +71,44 @@ class DispNet_sequential(nn.Module) :
 
   def forward(self,x):
 
-    x1 = F.relu(self.conv1_batch(self.conv1(x)))
-    x2 = F.relu(self.conv2_batch(self.conv2(x1)))
+    x1 = F.elu(self.conv1_batch(self.conv1(x)))
+    x2 = F.elu(self.conv2_batch(self.conv2(x1)))
     
-    x3a = F.relu(self.conv3a_batch(self.conv3a(x2)))
-    x3b = F.relu(self.conv3b_batch(self.conv3b(x3a)))
+    x3a = F.elu(self.conv3a_batch(self.conv3a(x2)))
+    x3b = F.elu(self.conv3b_batch(self.conv3b(x3a)))
     
-    x4a = F.relu(self.conv4a_batch(self.conv4a(x3b)))
-    x4b = F.relu(self.conv4b_batch(self.conv4b(x4a)))
+    x4a = F.elu(self.conv4a_batch(self.conv4a(x3b)))
+    x4b = F.elu(self.conv4b_batch(self.conv4b(x4a)))
     
-    x5a = F.relu(self.conv5a_batch(self.conv5a(x4b)))
-    x5b = F.relu(self.conv5b_batch(self.conv5b(x5a)))
+    x5a = F.elu(self.conv5a_batch(self.conv5a(x4b)))
+    x5b = F.elu(self.conv5b_batch(self.conv5b(x5a)))
     
-    x6a = F.relu(self.conv6a_batch(self.conv6a(x5b)))
-    x6b = F.relu(self.conv6b_batch(self.conv6b(x6a)))
+    x6a = F.elu(self.conv6a_batch(self.conv6a(x5b)))
+    x6b = F.elu(self.conv6b_batch(self.conv6b(x6a)))
     
-    x6up = F.relu(self.conv_upcon6b(F.interpolate(x6b, scale_factor=2, mode='nearest')))
-    x5_final = F.relu(self.conv6_final(torch.cat((x6up,x5b),1)))
+    x6up = F.elu(self.conv_upcon6b(F.interpolate(x6b, scale_factor=2, mode='nearest')))
+    x5_final = F.elu(self.conv6_final(torch.cat((x6up,x5b),1)))
 
-    x5up = F.relu(self.conv_upcon5b(F.interpolate(x5_final, scale_factor=2, mode='nearest')))
-    x4_final = F.relu(self.conv5_final(torch.cat((x5up,x4b),1)))
+    x5up = F.elu(self.conv_upcon5b(F.interpolate(x5_final, scale_factor=2, mode='nearest')))
+    x4_final = F.elu(self.conv5_final(torch.cat((x5up,x4b),1)))
 
-    x4up = F.relu(self.conv_upcon4b(F.interpolate(x4_final, scale_factor=2, mode='nearest')))  
-    x3_final = F.relu(self.conv4_final(torch.cat((x4up,x3b),1)))
-    x3_disp = F.relu(self.conv4_disp(x3_final))
+    x4up = F.elu(self.conv_upcon4b(F.interpolate(x4_final, scale_factor=2, mode='nearest')))  
+    x3_final = F.elu(self.conv4_final(torch.cat((x4up,x3b),1)))
+    x3_disp = F.elu(self.conv4_disp(x3_final))
     x3_dispup = self.conv4_dispup(x3_disp)
 
-    x3up = F.relu(self.conv_upcon3b(F.interpolate(x3_final, scale_factor=2, mode='nearest')))  
-    x2_final = F.relu(self.conv3_final(torch.cat((x3up,x2,x3_dispup),1)))
-    x2_disp = F.relu(self.conv3_disp(x2_final))
+    x3up = F.elu(self.conv_upcon3b(F.interpolate(x3_final, scale_factor=2, mode='nearest')))  
+    x2_final = F.elu(self.conv3_final(torch.cat((x3up,x2,x3_dispup),1)))
+    x2_disp = F.elu(self.conv3_disp(x2_final))
     x2_dispup = self.conv3_dispup(x2_disp)
 
-    x2up = F.relu(self.conv_upcon2(F.interpolate(x2_final, scale_factor=2, mode='nearest')))
-    x1_final = F.relu(self.conv2_final(torch.cat((x2up,x1,x2_dispup),1)))
-    x1_disp = F.relu(self.conv2_disp(x1_final))
+    x2up = F.elu(self.conv_upcon2(F.interpolate(x2_final, scale_factor=2, mode='nearest')))
+    x1_final = F.elu(self.conv2_final(torch.cat((x2up,x1,x2_dispup),1)))
+    x1_disp = F.elu(self.conv2_disp(x1_final))
     x1_dispup = self.conv2_dispup(x1_disp)
 
-    x1up = F.relu(self.conv_upcon1(F.interpolate(x1_final, scale_factor=2, mode='nearest')))
-    x0_disp = F.relu(self.conv1_final(torch.cat((x1up,x1_dispup),1)))
+    x1up = F.elu(self.conv_upcon1(F.interpolate(x1_final, scale_factor=2, mode='nearest')))
+    x0_disp = F.elu(self.conv1_final(torch.cat((x1up,x1_dispup),1)))
     #TO DO D = 1/(aσ + b) Output Depth will be between 0.1 and 100
     return [x0_disp, x1_disp, x2_disp, x3_disp]
     
