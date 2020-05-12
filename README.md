@@ -1,17 +1,38 @@
-# Monocular-Depth-Estimation
-Predict depth from Monocular Image: How cool!!
+# Monocular Depth Estimation
 
+Estimate Depth Map from a Single Image
 
-Set environment variables into:
-params.py
+## Training
 
-To train, run
+Make changes in the params.py according to your system. 
 
-python train.py
+```bash
+Python train.py
+```
 
+## Testing
 
-To test, run
-python test.py
+Make changes in the params.py according to your system. 
 
-Sample dataset provided, 
-Downlaod full Kitti dataset and place it into the same folder or change dataset location in params.py
+```bash
+Python test.py
+```
+
+## Results
+
+## Requirements
+```bash
+Pytorch
+Numpy
+cv2
+matplotlib
+tqdm
+```
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
