@@ -6,6 +6,19 @@ from params import *
 
 # torch.cuda.FloatTensor
 def apply_disparity(input_images, x_offset, wrap_mode='border', tensor_type = 'torch.FloatTensor'):
+    """Implementation of Bilinear Sampling
+
+    Arguments:
+        input_images {tensor} -- Image
+        x_offset {tensor} -- tensor
+
+    Keyword Arguments:
+        wrap_mode {str} -- method of warp (default: {'border'})
+        tensor_type {str} -- datatype (default: {'torch.FloatTensor'})
+
+    Returns:
+        tensor -- image applied bilinear sampling
+    """
     if is_gpu_available:
         tensor_type = 'torch.cuda.FloatTensor'
     num_batch, num_channels, height, width = input_images.size()

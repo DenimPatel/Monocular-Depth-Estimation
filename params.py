@@ -1,15 +1,16 @@
 LEARNING_RATE = 0.0001
-resume_trining = True
+resume_trining = False
 BATCH_SIZE = 4
-MANY_WORKERS = 8
+MANY_WORKERS = 0
 EPOCH = 50
+
 """
 weights for losses
 """
 appearance_matching_loss_weight = 1.0
 LR_loss_weight = 0.05
 disparity_smoothness_loss_weight = 0.05
-alpha_appearance_matching_loss = 0.3
+alpha_appearance_matching_loss = 0.85
 temporal_disparity_smoothness_loss_weight = 0.05
 
 """
@@ -27,22 +28,19 @@ else:
 """
 dataset 
 """
-# dataset_location = "/home/denimpatel2020/Monocular-Depth-Estimation/"
-train_dataset_location = "/home/bala/DeepLearning/Train_Data/"
-test_dataset_location = "/home/bala/DeepLearning/Train_Data/"
-
-
-image_type = ".jpg" #or ".png"
+train_dataset_location = "dataset" 
+test_dataset_location =  "dataset"
+image_type = ".png" # use ".jpg" or ".png"
 sanity_check_images = False 
-
 method_of_training = "folder" # "eigen_split" or "folder"
+
+EIGEN_SPLIT_TRAIN_TXT = 'dataset/kitti_train_files.txt'
 
 """
 @TODO: Two pth file for read and write  
 """
-pth_file_location = "/home/bala/DeepLearning/Monocular-Depth-Estimation-master/wts_monodepth_gcp2.pth"
-save_images_in = "/home/bala/DeepLearning/Monocular-Depth-Estimation-master/epoch/"
-# save_images_in = '/home/baladhurgesh97/wts_monodepth_gcp1.pth'
+pth_file_location = "epoch/wts_monodepth_.pth"
+save_images_in = "epoch/"
 
 """
 Test

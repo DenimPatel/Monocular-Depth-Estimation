@@ -1,7 +1,16 @@
 import torch
 import torch.nn as nn
 
-def SSIM(x, y):
+def SSIM_loss(x, y):
+    """Calculate Structural Similarity Score
+
+    Arguments:
+        x {tenosor} -- Image
+        y {tensor} -- Image
+
+    Returns:
+        floatTensor -- SSIM loss : (1- SSIM)/2 between 0 to 1
+    """
     C1 = 0.01 ** 2
     C2 = 0.03 ** 2
 

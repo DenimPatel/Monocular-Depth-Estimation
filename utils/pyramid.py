@@ -1,15 +1,16 @@
 import torch
 import torch.nn as nn
 
-"""
-Generates image pyramid by downsclaling
-
-ex: 
-    image/4
-    image/2
-    image
-"""
 def scale_pyramid(img, num_scales):
+    """Generate Image pyamid
+
+    Arguments:
+        img {tensor} -- Base Image
+        num_scales {tensor} -- Number of levels required in pyramid of Image
+
+    Returns:
+        tensor -- pyramid of Image
+    """
     scaled_imgs = [img]
     s = img.size()
     h = int(s[2])

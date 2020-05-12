@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class DispNet_sequential(nn.Module) :
+  """ DispNet Implementation Pytorch
+  """
   def __init__(self):
     super(DispNet_sequential,self).__init__()
     # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1, groups=1, bias=True, padding_mode='zeros')
@@ -70,6 +72,14 @@ class DispNet_sequential(nn.Module) :
     
 
   def forward(self,x):
+    """Forward Pass on Monocular Image
+
+    Arguments:
+        x {tensor} -- Image 
+
+    Returns:
+        Tensor -- Pyramid of left and right disparity 
+    """
 
     x1 = F.elu(self.conv1_batch(self.conv1(x)))
     x2 = F.elu(self.conv2_batch(self.conv2(x1)))
@@ -112,4 +122,3 @@ class DispNet_sequential(nn.Module) :
     #TO DO D = 1/(aσ + b) Output Depth will be between 0.1 and 100
     return [x0_disp, x1_disp, x2_disp, x3_disp]
     
- 
