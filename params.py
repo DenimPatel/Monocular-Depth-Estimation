@@ -54,5 +54,5 @@ width_to_focal[1238] = 718.3351
 min_depth = 1e-3
 max_depth = 80
 
-save_test_images_in = "/home/bala/DeepLearning/Monocular-Depth-Estimation-master/epoch/"
-save_statistics_in = "/home/bala/DeepLearning/Monocular-Depth-Estimation-master/epoch/" 
+save_test_images_in = "/epoch/"
+save_statistics_in = "/epoch/" 
