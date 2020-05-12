@@ -9,6 +9,10 @@ Make changes in the params.py according to your system.
 ```bash
 python train.py
 ```
+To train with temporal consistency loss
+```bash
+python train_with_temporal_smoothness.py
+```
 
 ## Testing
 
