@@ -7,7 +7,7 @@ Estimate Depth Map from a Single Image
 Make changes in the params.py according to your system. 
 
 ```bash
-Python train.py
+python train.py
 ```
 
 ## Testing
@@ -15,15 +15,15 @@ Python train.py
 Make changes in the params.py according to your system. 
 
 ```bash
-Python test.py
+python test.py
 ```
 
 ## Results
 
 ## Requirements
 ```bash
-Pytorch
-Numpy
+pytorch
+numpy
 cv2
 matplotlib
 tqdm
