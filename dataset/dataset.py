@@ -11,8 +11,8 @@ from torch.utils.data import Dataset
 
 from params import *
 
-class KITTIDataset_eigen_split(Dataset):
-    """Generate Pytorch ready EigenSplit KittiDataset
+class KITTIDataset_from_txt(Dataset):
+    """Generate Pytorch ready KittiDataset using txt file containing image
 
     Arguments:
         Dataset {pytorch dataset} -- superclass 
@@ -32,7 +32,7 @@ class KITTIDataset_eigen_split(Dataset):
         # read file and store all the images 
         print("Loading Dataset: from -> ", self.rootdir)
         start = time.time()
-        with open(EIGEN_SPLIT_TRAIN_TXT, mode = 'r') as csv_file:
+        with open(TRAIN_DATASET_TXT, mode = 'r') as csv_file:
             for line in csv_file:
                 stereo_img = line.split(' ') # each line contains two image names -> "left image & right image"
                 left_image_name = os.path.join(self.rootdir, stereo_img[0][:-4]+self.extension_of_images)
@@ -154,8 +154,8 @@ class KITTIDataset_from_folder(Dataset):
 
         return {"left_img":left_img,"right_img":right_img}
 
-class KITTIDataset_eigen_split_for_temporal_smoothness(Dataset):
-    """Generate Pytorch ready EigenSplit KittiDataset
+class KITTIDataset_from_txt_for_temporal_smoothness(Dataset):
+    """Generate Pytorch ready KittiDataset using txt file containing image
 
     Arguments:
         Dataset {pytorch dataset} -- superclass 
@@ -175,7 +175,7 @@ class KITTIDataset_eigen_split_for_temporal_smoothness(Dataset):
         # read file and store all the images 
         print("Loading Dataset: from -> ", self.rootdir)
         start = time.time()
-        with open(EIGEN_SPLIT_TRAIN_TXT, mode = 'r') as csv_file:
+        with open(TRAIN_DATASET_TXT, mode = 'r') as csv_file:
             for line in csv_file:
                 stereo_img = line.split(' ') # each line contains two image names -> "left image & right image"
                 left_image_name = os.path.join(self.rootdir, stereo_img[0][:-4]+self.extension_of_images)

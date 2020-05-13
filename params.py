@@ -32,7 +32,7 @@ train_dataset_location = "dataset"
 test_dataset_location =  "dataset"
 image_type = ".png" # use ".jpg" or ".png"
 sanity_check_images = False 
-method_of_training = "folder" # "eigen_split" or "folder"
+source_of_training = "folder" # "txt" or "folder"
 
 EIGEN_SPLIT_TRAIN_TXT = 'dataset/kitti_train_files.txt'
 

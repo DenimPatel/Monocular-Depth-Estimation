@@ -43,15 +43,15 @@ from loss.ssim_loss import SSIM_loss
 # Pyramid generation
 from utils.pyramid import scale_pyramid
 
-from dataset.dataset import KITTIDataset_from_folder_for_temporal_smoothness, KITTIDataset_eigen_split_for_temporal_smoothness
+from dataset.dataset import KITTIDataset_from_folder_for_temporal_smoothness, KITTIDataset_from_txt_for_temporal_smoothness
 from params import *
 
 if __name__ == '__main__':
     print("\n \n --- Monocular Depth Estimation train code --- \n \n")
     
     # load dataset 
-    if method_of_training == "eigen_split":
-        dataset = KITTIDataset_eigen_split_for_temporal_smoothness()
+    if source_of_training == "txt":
+        dataset = KITTIDataset_from_txt_for_temporal_smoothness()
     else:
         dataset = KITTIDataset_from_folder_for_temporal_smoothness()
 
