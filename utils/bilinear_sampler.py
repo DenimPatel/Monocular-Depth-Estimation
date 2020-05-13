@@ -1,3 +1,7 @@
+"""
+Code taken from: https://github.com/alwynmathew/monodepth-pytorch/blob/master/bilinear_sampler.py
+"""
+
 from __future__ import absolute_import, division, print_function
 import torch
 from torch.nn.functional import pad

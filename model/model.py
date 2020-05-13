@@ -40,33 +40,27 @@ class DispNet_sequential(nn.Module) :
     self.conv6b = nn.Conv2d(1024,1024,3,1,padding=(1,1)) #8*4
     self.conv6b_batch = nn.BatchNorm2d(1024, affine = False)
     
-    # self.upconv6b = nn.Upsample(scale_factor=2, mode='nearest') #16*8
     self.conv_upcon6b = nn.Conv2d(1024,1024,3,1,padding=(1,1))
     self.conv6_final = nn.Conv2d(1024+512,512,3,1,padding=(1,1))
 
-    # self.upconv5b = nn.Upsample(scale_factor=2, mode='nearest') #32*16
     self.conv_upcon5b = nn.Conv2d(512,512,3,1,padding=(1,1))
     self.conv5_final = nn.Conv2d(512+512,256,3,1,padding=(1,1))
 
-    # self.upconv4b = nn.Upsample(scale_factor=2, mode='nearest') #64*32
     self.conv_upcon4b = nn.Conv2d(256,256,3,1,padding=(1,1))
     self.conv4_final = nn.Conv2d(256+256,128,3,1,padding=(1,1))
     self.conv4_disp = nn.Conv2d(128, 2, 3, 1,padding=(1,1))
     self.conv4_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    # self.upconv3b = nn.Upsample(scale_factor=2, mode='nearest') #128*64
     self.conv_upcon3b = nn.Conv2d(128, 128,3,1,padding=(1,1))
     self.conv3_final = nn.Conv2d(128+128+2,64,3,1,padding=(1,1))
     self.conv3_disp = nn.Conv2d(64, 2, 3, 1,padding=(1,1))
     self.conv3_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    # self.upconv2 = nn.Upsample(scale_factor=2, mode='nearest') #256*128
     self.conv_upcon2 = nn.Conv2d(64,64,3,1,padding=(1,1))
     self.conv2_final = nn.Conv2d(64+64+2,32,3,1,padding=(1,1))
     self.conv2_disp = nn.Conv2d(32, 2, 3, 1,padding=(1,1))
     self.conv2_dispup = nn.Upsample(scale_factor = 2, mode = 'nearest')
 
-    # self.upconv1 = nn.Upsample(scale_factor=2, mode='nearest') #512*256
     self.conv_upcon1 = nn.Conv2d(32,32,3,1,padding=(1,1))
     self.conv1_final = nn.Conv2d(32+2,2,3,1,padding=(1,1))    
     

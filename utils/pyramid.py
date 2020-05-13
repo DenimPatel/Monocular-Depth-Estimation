@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 def scale_pyramid(img, num_scales):
     """Generate Image pyamid
@@ -19,6 +20,7 @@ def scale_pyramid(img, num_scales):
         ratio = 2 ** (i + 1)
         nh = h // ratio
         nw = w // ratio
-        temp = nn.functional.upsample(img, [nh, nw], mode='nearest')
+        # temp = nn.functional.upsample(img, [nh, nw], mode='nearest')
+        temp = F.interpolate(img, [nh, nw], mode='nearest')
         scaled_imgs.append(temp)
     return scaled_imgs
